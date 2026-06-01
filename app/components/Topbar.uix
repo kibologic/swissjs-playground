@@ -6,6 +6,7 @@ component Topbar {
     onExampleChange: Function,
     onShare: Function,
     shareUrl: string,
+    compiling: boolean,
   };
 
   _examples(): any[] {
@@ -53,6 +54,11 @@ component Topbar {
               onclick={(e: any) => e.target.select()}
               style="background:#0a1020;border:1px solid #2674d9;border-radius:6px;color:#bac6d8;font-family:monospace;font-size:11px;padding:4px 10px;width:240px;"
             />
+          )}
+          {this.props.compiling && (
+            <span style="font-family:monospace;font-size:10px;color:#2674d9;padding:4px 8px;background:#0a1a30;border-radius:4px;border:1px solid #1a3050;">
+              compiling…
+            </span>
           )}
           <a href="https://github.com/kibologic/swiss-lib" target="_blank"
             style="color:#8090a8;font-size:11px;font-weight:700;font-family:monospace;text-decoration:none;">

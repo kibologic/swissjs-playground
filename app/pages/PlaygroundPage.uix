@@ -3,12 +3,17 @@ import { Topbar } from '../components/Topbar.uix';
 import { EditorPane } from '../components/EditorPane.uix';
 import { PreviewPane } from '../components/PreviewPane.uix';
 
+let _debounceTimer: any = null;
+let _compileSeq: number = 0;
+
 component PlaygroundPage {
   state {
     let code: string = '';
     let selectedExample: string = 'counter';
     let shareUrl: string = '';
     let compileError: string = '';
+    let srcdoc: string = '';
+    let compiling: boolean = false;
   }
 
   _examples(): any {
@@ -180,29 +185,64 @@ component PlaygroundPage {
     };
   }
 
-  _buildSrcdoc(code: string): string {
-    const escaped = code.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+  _findMountTarget(source: string): string {
+    let last = 'App';
+    const rx = /\bcomponent\s+([A-Z][A-Za-z0-9_]*)\s*[\{(]/g;
+    let m: any;
+    while ((m = rx.exec(source)) !== null) last = m[1];
+    return last;
+  }
+
+  _buildSrcdoc(compiledJs: string, mountTarget: string): string {
+    const importmap = JSON.stringify({
+      imports: {
+        'reflect-metadata': '/node_modules/reflect-metadata/Reflect.js',
+        '@kibologic/core': '/node_modules/@kibologic/core/dist/index.js',
+        '@kibologic/core/': '/node_modules/@kibologic/core/',
+      }
+    });
+    // import { mount } must come before any non-import code (V8 restriction)
+    const safeJs = ('import { mount } from \'@kibologic/core\';\n' + compiledJs + '\nmount(' + mountTarget + ', document.getElementById(\'app\'));\n')
+      .replace(/<\/script>/gi, '<\\/script>');
     return [
-      '<!DOCTYPE html><html><head>',
-      '<meta charset="UTF-8">',
-      '<' + 'style>*{box-sizing:border-box;}body{margin:0;font-family:sans-serif;}</' + 'style>',
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">',
+      '<script type="importmap">' + importmap + '</' + 'script>',
+      '<style>*{box-sizing:border-box;}body{margin:0;font-family:sans-serif;}</' + 'style>',
       '</head><body><div id="app"></div>',
-      '<script type="module">',
-      '// SwissJS Playground runtime shim',
-      '// This is a simplified preview — full compilation requires the SwissJS compiler.',
-      '// The playground shows the code and a static preview of what the output would render.',
-      'document.getElementById("app").innerHTML = `',
-      '<div style="padding:24px;font-family:monospace;font-size:13px;color:#374151;">',
-      '<p style="margin:0 0 12px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">SwissJS Playground Preview</p>',
-      '<pre style="margin:0;background:#f3f4f6;padding:16px;border-radius:8px;overflow:auto;font-size:12px;line-height:1.6;color:#1f2937;">' + escaped.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>',
-      '<p style="margin:16px 0 0;font-size:11px;color:#9ca3af;">',
-      'Full compilation coming in playground v0.2. Run locally: <code style="background:#e5e7eb;padding:2px 6px;border-radius:4px;">npm create swissjs@latest my-app</code>',
-      '</p>',
-      '</div>',
-      '`;',
-      '</script>',
+      '<script type="module">' + safeJs + '</' + 'script>',
       '</body></html>',
-    ].join('\n');
+    ].join('');
+  }
+
+  async _doCompile(code: string): Promise<void> {
+    const seq = ++_compileSeq;
+    this.compiling = true;
+    try {
+      const resp = await fetch('/api/compile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      if (seq !== _compileSeq) return;
+      const data = await resp.json();
+      if (data.error) {
+        this.compileError = data.error;
+        this.compiling = false;
+        return;
+      }
+      const target = this._findMountTarget(code);
+      this.srcdoc = this._buildSrcdoc(data.js, target);
+      this.compileError = '';
+    } catch (e: any) {
+      if (seq !== _compileSeq) return;
+      this.compileError = e.message || 'Compile failed';
+    }
+    this.compiling = false;
+  }
+
+  _scheduleCompile(code: string): void {
+    if (_debounceTimer) clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(() => { this._doCompile(code); }, 300);
   }
 
   _encodeShare(code: string): string {
@@ -220,20 +260,22 @@ component PlaygroundPage {
     } else {
       this.code = examples.counter;
     }
+    this._doCompile(this.code);
   }
 
   render() {
-    const srcdoc = this._buildSrcdoc(this.code);
-
     return (
       <div style="display:flex;flex-direction:column;height:100vh;background:#0b1120;">
         <Topbar
           selectedExample={this.selectedExample}
+          compiling={this.compiling}
           onExampleChange={(name: string) => {
             this.selectedExample = name;
             this.shareUrl = '';
             const examples = this._examples();
-            this.code = (examples as any)[name] || this.code;
+            const newCode = (examples as any)[name] || this.code;
+            this.code = newCode;
+            this._doCompile(newCode);
           }}
           onShare={() => {
             this.shareUrl = this._encodeShare(this.code);
@@ -251,9 +293,10 @@ component PlaygroundPage {
             onChange={(newCode: string) => {
               this.code = newCode;
               this.shareUrl = '';
+              this._scheduleCompile(newCode);
             }}
           />
-          <PreviewPane srcdoc={srcdoc} error={this.compileError} />
+          <PreviewPane srcdoc={this.srcdoc} error={this.compileError} compiling={this.compiling} />
         </div>
       </div>
     );

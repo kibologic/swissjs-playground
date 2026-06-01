@@ -1,5 +1,7 @@
 import { SwissComponent } from '@kibologic/core';
 
+let _monacoBootstrapped: boolean = false;
+
 component EditorPane {
   props = {
     code: string,
@@ -7,19 +9,161 @@ component EditorPane {
     filename: string,
   };
 
+  mounted() {
+    (this as any)._editor = null;
+    (this as any)._lastSyncedCode = this.props.code;
+    this._loadMonaco();
+  }
+
+  _loadMonaco() {
+    if ((window as any).monaco) {
+      this._initEditor();
+      return;
+    }
+    if (_monacoBootstrapped) {
+      (window as any).require(['vs/editor/editor.main'], () => this._initEditor());
+      return;
+    }
+    _monacoBootstrapped = true;
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js';
+    script.onload = () => {
+      (window as any).require.config({
+        paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs' },
+      });
+      (window as any).require(['vs/editor/editor.main'], () => this._initEditor());
+    };
+    document.head.appendChild(script);
+  }
+
+  _initEditor() {
+    const monaco = (window as any).monaco;
+    this._registerLanguage(monaco);
+    const container = document.getElementById('monaco-container');
+    if (!container) return;
+    const editor = monaco.editor.create(container, {
+      value: this.props.code,
+      language: 'swissjs',
+      theme: 'swiss-dark',
+      fontSize: 13,
+      lineHeight: 22,
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      automaticLayout: true,
+      tabSize: 2,
+      wordWrap: 'on',
+      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+    });
+    (this as any)._lastSyncedCode = this.props.code;
+    (this as any)._editor = editor;
+    editor.onDidChangeModelContent(() => {
+      const value = editor.getValue();
+      (this as any)._lastSyncedCode = value;
+      this.props.onChange(value);
+    });
+    // Ctrl/Cmd+S forces immediate recompile by flushing the debounce
+    editor.addCommand(
+      (monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS),
+      () => { this.props.onChange(editor.getValue()); }
+    );
+  }
+
+  _registerLanguage(monaco: any) {
+    if (monaco.languages.getLanguages().find((l: any) => l.id === 'swissjs')) return;
+
+    monaco.languages.register({ id: 'swissjs' });
+    monaco.languages.setMonarchTokensProvider('swissjs', {
+      tokenizer: {
+        root: [
+          [/\b(component|state|render|mounted|unmounted|destroyed|updated|props)\b/, 'keyword.swissjs'],
+          [/\b(let|const|var|function|class|extends|import|export|from|return|if|else|for|while|new|this|typeof|instanceof|async|await|of|in)\b/, 'keyword'],
+          [/<[A-Z][A-Za-z0-9]*/, 'type.identifier'],
+          [/<\/?[a-z][a-z0-9-]*/, 'tag'],
+          [/\/>/, 'tag'],
+          [/>/, 'tag'],
+          [/\b(string|number|boolean|any|void|null|undefined|never|unknown)\b/, 'type'],
+          [/"([^"\\]|\\.)*"/, 'string'],
+          [/'([^'\\]|\\.)*'/, 'string'],
+          [/`([^`\\]|\\.)*`/, 'string'],
+          [/\/\/.*$/, 'comment'],
+          [/\/\*[\s\S]*?\*\//, 'comment'],
+          [/\b\d+(\.\d+)?\b/, 'number'],
+        ],
+      },
+    });
+
+    monaco.editor.defineTheme('swiss-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'keyword.swissjs', foreground: 'ff9d00', fontStyle: 'bold' },
+        { token: 'keyword', foreground: '569cd6' },
+        { token: 'type', foreground: '4ec9b0' },
+        { token: 'type.identifier', foreground: 'dcdcaa' },
+        { token: 'string', foreground: 'ce9178' },
+        { token: 'comment', foreground: '6a9955' },
+        { token: 'tag', foreground: '4ec9b0' },
+        { token: 'number', foreground: 'b5cea8' },
+      ],
+      colors: {
+        'editor.background': '#0a1020',
+        'editor.foreground': '#dde7ff',
+        'editorLineNumber.foreground': '#3d4f6a',
+        'editorLineNumber.activeForeground': '#6080a0',
+        'editor.lineHighlightBackground': '#0d1526',
+        'editorCursor.foreground': '#2674d9',
+        'editor.selectionBackground': '#1e3a5f',
+        'editor.inactiveSelectionBackground': '#162d4a',
+        'editorIndentGuide.background': '#1e2d45',
+      },
+    });
+  }
+
+  _applyDiagnostics(errors: any[]) {
+    const editor = (this as any)._editor;
+    if (!editor) return;
+    const monaco = (window as any).monaco;
+    const model = editor.getModel();
+    if (!model) return;
+    const markers = errors.map((e: any) => ({
+      severity: monaco.MarkerSeverity.Error,
+      startLineNumber: e.line || 1,
+      startColumn: e.column || 1,
+      endLineNumber: e.line || 1,
+      endColumn: (e.column || 1) + 20,
+      message: e.message,
+      source: 'SwissJS',
+    }));
+    monaco.editor.setModelMarkers(model, 'swissjs-compiler', markers);
+  }
+
+  destroyed() {
+    const editor = (this as any)._editor;
+    if (editor) {
+      editor.dispose();
+      (this as any)._editor = null;
+    }
+  }
+
   render() {
+    const editor = (this as any)._editor;
+    const lastSynced = (this as any)._lastSyncedCode;
+    if (editor && this.props.code !== lastSynced) {
+      (this as any)._lastSyncedCode = this.props.code;
+      const incoming = this.props.code;
+      setTimeout(() => {
+        const e = (this as any)._editor;
+        if (e && e.getValue() !== incoming) e.setValue(incoming);
+      }, 0);
+    }
+
     return (
       <div style="display:flex;flex-direction:column;height:100%;background:#0a1020;border-right:1px solid #1e2d45;">
         <div style="height:36px;background:#131c2d;border-bottom:1px solid #1e2d45;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;">
           <span style="width:10px;height:10px;border-radius:50%;background:#1e2d45;display:inline-block;"></span>
           <span style="font-family:monospace;font-size:12px;color:#8090a8;">{this.props.filename}</span>
         </div>
-        <textarea
-          value={this.props.code}
-          oninput={(e: any) => this.props.onChange(e.target.value)}
-          spellcheck={false}
-          style="flex:1;background:#0a1020;color:#dde7ff;border:none;outline:none;padding:16px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;resize:none;tab-size:2;"
-        ></textarea>
+        <div id="monaco-container" style="flex:1;width:100%;overflow:hidden;"></div>
       </div>
     );
   }
