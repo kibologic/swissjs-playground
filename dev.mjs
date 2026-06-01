@@ -1,12 +1,26 @@
-import { createServer } from '@kibologic/swite';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import { SwiteServer } from '@kibologic/swite';
 
-const isBuild = process.argv.includes('--build');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-if (isBuild) {
-  const { build } = await import('@kibologic/swite');
-  await build({ root: './app', entry: 'main.ui', outDir: 'dist', minify: true });
-  console.log('Build complete → dist/');
-} else {
-  const server = await createServer({ root: './app', port: 5100, entry: 'main.ui' });
-  await server.listen();
-}
+const server = new SwiteServer({
+  root: path.resolve(__dirname, 'app'),
+  publicDir: 'public',
+  port: 5100,
+  host: '0.0.0.0',
+  open: false,
+});
+
+server.app.use((req, res, next) => {
+  if (req.method === 'GET' && req.headers.accept?.includes('text/html')) {
+    res.setHeader('Content-Type', 'text/html');
+    res.end(readFileSync(path.join(__dirname, 'app/public/index.html'), 'utf-8'));
+    return;
+  }
+  next();
+});
+
+await server.start();
+console.log('[swissjs-playground] running on http://localhost:5100');
