@@ -1,0 +1,38 @@
+import { SwissComponent } from '@kibologic/core';
+
+component PreviewPane {
+  props = {
+    srcdoc: string;
+    error: string;
+  };
+
+  render() {
+    return (
+      <div style="display:flex;flex-direction:column;height:100%;background:#f9fafb;">
+        <div style="height:36px;background:#f1f5f9;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;">
+          <div style="display:flex;gap:5px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#f87171;display:inline-block;"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#fbbf24;display:inline-block;"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#34d399;display:inline-block;"></span>
+          </div>
+          <span style="font-family:monospace;font-size:12px;color:#94a3b8;">Preview</span>
+        </div>
+
+        {this.props.error ? (
+          <div style="flex:1;padding:20px;overflow:auto;">
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;">
+              <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px;font-family:monospace;">Compile Error</div>
+              <pre style="margin:0;font-family:monospace;font-size:12px;color:#991b1b;white-space:pre-wrap;line-height:1.6;">{this.props.error}</pre>
+            </div>
+          </div>
+        ) : (
+          <iframe
+            srcdoc={this.props.srcdoc}
+            sandbox="allow-scripts"
+            style="flex:1;border:none;background:#fff;"
+          ></iframe>
+        )}
+      </div>
+    );
+  }
+}

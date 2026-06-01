@@ -1,0 +1,65 @@
+import { SwissComponent } from '@kibologic/core';
+
+component Topbar {
+  props = {
+    selectedExample: string;
+    onExampleChange: (name: string) => void;
+    onShare: () => void;
+    shareUrl: string;
+  };
+
+  _examples(): any[] {
+    return [
+      { name: 'counter', label: 'Counter' },
+      { name: 'todo', label: 'Todo List' },
+      { name: 'fetch', label: 'Fetch Data' },
+      { name: 'form', label: 'Form & Validation' },
+      { name: 'signals', label: 'Signals' },
+    ];
+  }
+
+  render() {
+    const examples = this._examples();
+    return (
+      <header style="height:48px;background:#0b1120;border-bottom:1px solid #1e2d45;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <a href="https://swissjs.org" target="_blank" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#f1f5fb;font-size:15px;font-weight:900;font-family:monospace;">
+            <span style="width:14px;height:14px;background:#2674d9;border-radius:3px;display:inline-block;"></span>
+            SwissJS
+            <span style="font-size:10px;font-weight:500;color:#8090a8;border:1px solid #223047;border-radius:4px;padding:2px 6px;">Playground</span>
+          </a>
+          <select
+            onchange={(e: any) => this.props.onExampleChange(e.target.value)}
+            value={this.props.selectedExample}
+            style="background:#131c2d;border:1px solid #223047;border-radius:6px;color:#bac6d8;font-size:12px;padding:4px 10px;cursor:pointer;font-family:monospace;"
+          >
+            {examples.map((ex: any) => (
+              <option key={ex.name} value={ex.name}>{ex.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button
+            onclick={() => this.props.onShare()}
+            style="background:#223047;border:none;color:#bac6d8;border-radius:6px;padding:6px 14px;font-family:monospace;font-size:12px;font-weight:700;cursor:pointer;"
+          >
+            Share
+          </button>
+          {this.props.shareUrl && (
+            <input
+              readonly={true}
+              value={this.props.shareUrl}
+              onclick={(e: any) => e.target.select()}
+              style="background:#0a1020;border:1px solid #2674d9;border-radius:6px;color:#bac6d8;font-family:monospace;font-size:11px;padding:4px 10px;width:240px;"
+            />
+          )}
+          <a href="https://github.com/kibologic/swiss-lib" target="_blank"
+            style="color:#8090a8;font-size:11px;font-weight:700;font-family:monospace;text-decoration:none;">
+            GitHub
+          </a>
+        </div>
+      </header>
+    );
+  }
+}

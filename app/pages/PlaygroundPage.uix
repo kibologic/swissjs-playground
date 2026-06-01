@@ -1,0 +1,261 @@
+import { SwissComponent } from '@kibologic/core';
+import { Topbar } from '../components/Topbar.uix';
+import { EditorPane } from '../components/EditorPane.uix';
+import { PreviewPane } from '../components/PreviewPane.uix';
+
+component PlaygroundPage {
+  state {
+    let code: string = '';
+    let selectedExample: string = 'counter';
+    let shareUrl: string = '';
+    let compileError: string = '';
+  }
+
+  _examples(): any {
+    return {
+      counter: [
+        "import { SwissComponent } from '@kibologic/core';",
+        "",
+        "component Counter {",
+        "  state { let count: number = 0; }",
+        "",
+        "  render() {",
+        "    return (",
+        "      <div style=\"font-family:monospace;text-align:center;padding:60px 20px;\">",
+        "        <h1 style=\"font-size:64px;font-weight:900;color:#2563eb;margin:0 0 16px;\">",
+        "          {this.count}",
+        "        </h1>",
+        "        <div style=\"display:flex;gap:12px;justify-content:center;\">",
+        "          <button onclick={() => { this.count--; }} style=\"padding:10px 24px;background:#e5e7eb;border:none;border-radius:8px;font-size:16px;cursor:pointer;\">−</button>",
+        "          <button onclick={() => { this.count = 0; }} style=\"padding:10px 24px;background:#e5e7eb;border:none;border-radius:8px;font-size:14px;cursor:pointer;\">Reset</button>",
+        "          <button onclick={() => { this.count++; }} style=\"padding:10px 24px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;\">+</button>",
+        "        </div>",
+        "      </div>",
+        "    );",
+        "  }",
+        "}",
+      ].join('\n'),
+      todo: [
+        "import { SwissComponent } from '@kibologic/core';",
+        "",
+        "component TodoApp {",
+        "  state {",
+        "    let todos: any[] = [{ id: 1, text: 'Learn SwissJS', done: false }];",
+        "    let input: string = '';",
+        "    let nextId: number = 2;",
+        "  }",
+        "",
+        "  _add() {",
+        "    if (!this.input.trim()) return;",
+        "    this.todos = [...this.todos, { id: this.nextId++, text: this.input.trim(), done: false }];",
+        "    this.input = '';",
+        "  }",
+        "",
+        "  _toggle(id: number) {",
+        "    this.todos = this.todos.map((t: any) => t.id === id ? { ...t, done: !t.done } : t);",
+        "  }",
+        "",
+        "  render() {",
+        "    return (",
+        "      <div style=\"max-width:360px;margin:40px auto;font-family:monospace;\">",
+        "        <h2 style=\"margin:0 0 16px;\">Todo List</h2>",
+        "        <div style=\"display:flex;gap:8px;margin-bottom:16px;\">",
+        "          <input value={this.input} oninput={(e: any) => { this.input = e.target.value; }}",
+        "            onkeydown={(e: any) => { if (e.key === 'Enter') this._add(); }}",
+        "            placeholder=\"New todo...\"",
+        "            style=\"flex:1;padding:8px;border:1px solid #ddd;border-radius:6px;font:inherit;\" />",
+        "          <button onclick={() => this._add()} style=\"padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;\">Add</button>",
+        "        </div>",
+        "        <ul style=\"list-style:none;padding:0;margin:0;\">",
+        "          {this.todos.map((t: any) => (",
+        "            <li key={String(t.id)} style=\"display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0;\">",
+        "              <input type=\"checkbox\" checked={t.done} onchange={() => this._toggle(t.id)} />",
+        "              <span style={t.done ? 'text-decoration:line-through;color:#aaa;' : ''}>{t.text}</span>",
+        "            </li>",
+        "          ))}",
+        "        </ul>",
+        "      </div>",
+        "    );",
+        "  }",
+        "}",
+      ].join('\n'),
+      fetch: [
+        "import { SwissComponent } from '@kibologic/core';",
+        "",
+        "component UserFetch {",
+        "  state { let users: any[] = []; let loading: boolean = true; }",
+        "",
+        "  async mounted() {",
+        "    const res = await fetch('https://jsonplaceholder.typicode.com/users');",
+        "    this.users = await res.json();",
+        "    this.loading = false;",
+        "  }",
+        "",
+        "  render() {",
+        "    if (this.loading) return <p style=\"font-family:monospace;padding:40px;\">Loading...</p>;",
+        "    return (",
+        "      <ul style=\"font-family:monospace;padding:24px;max-width:400px;list-style:none;margin:0;\">",
+        "        {this.users.map((u: any) => (",
+        "          <li key={String(u.id)} style=\"padding:10px 0;border-bottom:1px solid #eee;\">",
+        "            <strong>{u.name}</strong>",
+        "            <br />",
+        "            <span style=\"font-size:12px;color:#666;\">{u.email}</span>",
+        "          </li>",
+        "        ))}",
+        "      </ul>",
+        "    );",
+        "  }",
+        "}",
+      ].join('\n'),
+      form: [
+        "import { SwissComponent } from '@kibologic/core';",
+        "",
+        "component ContactForm {",
+        "  state { let name: string = ''; let email: string = ''; let errors: any = {}; let sent: boolean = false; }",
+        "",
+        "  _validate(): boolean {",
+        "    const e: any = {};",
+        "    if (!this.name.trim()) e.name = 'Name is required';",
+        "    if (!this.email.includes('@')) e.email = 'Valid email required';",
+        "    this.errors = e;",
+        "    return Object.keys(e).length === 0;",
+        "  }",
+        "",
+        "  _submit(ev: any) {",
+        "    ev.preventDefault();",
+        "    if (this._validate()) this.sent = true;",
+        "  }",
+        "",
+        "  render() {",
+        "    if (this.sent) return <p style=\"font-family:monospace;padding:40px;color:green;\">Sent!</p>;",
+        "    return (",
+        "      <form onsubmit={(e: any) => this._submit(e)} style=\"font-family:monospace;padding:32px;max-width:360px;display:flex;flex-direction:column;gap:14px;\">",
+        "        <h2 style=\"margin:0;\">Contact</h2>",
+        "        <div>",
+        "          <input value={this.name} oninput={(e: any) => { this.name = e.target.value; }}",
+        "            placeholder=\"Name\" style=\"display:block;width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font:inherit;\" />",
+        "          {this.errors.name && <p style=\"margin:4px 0 0;font-size:11px;color:red;\">{this.errors.name}</p>}",
+        "        </div>",
+        "        <div>",
+        "          <input type=\"email\" value={this.email} oninput={(e: any) => { this.email = e.target.value; }}",
+        "            placeholder=\"Email\" style=\"display:block;width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font:inherit;\" />",
+        "          {this.errors.email && <p style=\"margin:4px 0 0;font-size:11px;color:red;\">{this.errors.email}</p>}",
+        "        </div>",
+        "        <button type=\"submit\" style=\"padding:10px;background:#2563eb;color:#fff;border:none;border-radius:6px;font:inherit;font-weight:700;cursor:pointer;\">Send</button>",
+        "      </form>",
+        "    );",
+        "  }",
+        "}",
+      ].join('\n'),
+      signals: [
+        "import { SwissComponent, Signal } from '@kibologic/core';",
+        "",
+        "const theme$ = new Signal<'light' | 'dark'>('light');",
+        "",
+        "component ThemeSwitcher {",
+        "  render() {",
+        "    return (",
+        "      <button onclick={() => { theme$.value = theme$.value === 'light' ? 'dark' : 'light'; }}",
+        "        style={'padding:10px 20px;border:none;border-radius:8px;font:inherit;font-weight:700;cursor:pointer;' + (theme$.value === 'light' ? 'background:#111;color:#fff;' : 'background:#fff;color:#111;')}",
+        "      >",
+        "        {theme$.value === 'light' ? 'Switch to Dark' : 'Switch to Light'}",
+        "      </button>",
+        "    );",
+        "  }",
+        "}",
+        "",
+        "component ThemeDisplay {",
+        "  render() {",
+        "    return (",
+        "      <div style={'min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:monospace;background:' + (theme$.value === 'light' ? '#fff' : '#111') + ';color:' + (theme$.value === 'light' ? '#111' : '#fff')}",
+        "      >",
+        "        <p style=\"margin:0;\">Current theme: <strong>{theme$.value}</strong></p>",
+        "        <ThemeSwitcher />",
+        "        <p style=\"font-size:12px;color:#666;\">Both components share the same Signal.</p>",
+        "      </div>",
+        "    );",
+        "  }",
+        "}",
+      ].join('\n'),
+    };
+  }
+
+  _buildSrcdoc(code: string): string {
+    const escaped = code.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+    return [
+      '<!DOCTYPE html><html><head>',
+      '<meta charset="UTF-8">',
+      '<style>*{box-sizing:border-box;}body{margin:0;font-family:sans-serif;}</style>',
+      '</head><body><div id="app"></div>',
+      '<script type="module">',
+      '// SwissJS Playground runtime shim',
+      '// This is a simplified preview — full compilation requires the SwissJS compiler.',
+      '// The playground shows the code and a static preview of what the output would render.',
+      'document.getElementById("app").innerHTML = `',
+      '<div style="padding:24px;font-family:monospace;font-size:13px;color:#374151;">',
+      '<p style="margin:0 0 12px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">SwissJS Playground Preview</p>',
+      '<pre style="margin:0;background:#f3f4f6;padding:16px;border-radius:8px;overflow:auto;font-size:12px;line-height:1.6;color:#1f2937;">' + escaped.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>',
+      '<p style="margin:16px 0 0;font-size:11px;color:#9ca3af;">',
+      'Full compilation coming in playground v0.2. Run locally: <code style="background:#e5e7eb;padding:2px 6px;border-radius:4px;">npm create swissjs@latest my-app</code>',
+      '</p>',
+      '</div>',
+      '`;',
+      '</script>',
+      '</body></html>',
+    ].join('\n');
+  }
+
+  _encodeShare(code: string): string {
+    return window.location.origin + '?code=' + encodeURIComponent(btoa(code));
+  }
+
+  mounted() {
+    const examples = this._examples();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('code')) {
+      try {
+        this.code = atob(decodeURIComponent(params.get('code') as string));
+        this.selectedExample = 'custom';
+      } catch { this.code = examples.counter; }
+    } else {
+      this.code = examples.counter;
+    }
+  }
+
+  render() {
+    const srcdoc = this._buildSrcdoc(this.code);
+
+    return (
+      <div style="display:flex;flex-direction:column;height:100vh;background:#0b1120;">
+        <Topbar
+          selectedExample={this.selectedExample}
+          onExampleChange={(name: string) => {
+            this.selectedExample = name;
+            this.shareUrl = '';
+            const examples = this._examples();
+            this.code = (examples as any)[name] || this.code;
+          }}
+          onShare={() => {
+            this.shareUrl = this._encodeShare(this.code);
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(this.shareUrl).catch(() => {});
+            }
+          }}
+          shareUrl={this.shareUrl}
+        />
+
+        <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0;">
+          <EditorPane
+            code={this.code}
+            filename="playground.uix"
+            onChange={(newCode: string) => {
+              this.code = newCode;
+              this.shareUrl = '';
+            }}
+          />
+          <PreviewPane srcdoc={srcdoc} error={this.compileError} />
+        </div>
+      </div>
+    );
+  }
+}

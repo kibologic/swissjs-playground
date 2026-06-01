@@ -1,0 +1,26 @@
+import { SwissComponent } from '@kibologic/core';
+
+component EditorPane {
+  props = {
+    code: string;
+    onChange: (code: string) => void;
+    filename: string;
+  };
+
+  render() {
+    return (
+      <div style="display:flex;flex-direction:column;height:100%;background:#0a1020;border-right:1px solid #1e2d45;">
+        <div style="height:36px;background:#131c2d;border-bottom:1px solid #1e2d45;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#1e2d45;display:inline-block;"></span>
+          <span style="font-family:monospace;font-size:12px;color:#8090a8;">{this.props.filename}</span>
+        </div>
+        <textarea
+          value={this.props.code}
+          oninput={(e: any) => this.props.onChange(e.target.value)}
+          spellcheck={false}
+          style="flex:1;background:#0a1020;color:#dde7ff;border:none;outline:none;padding:16px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;resize:none;tab-size:2;"
+        ></textarea>
+      </div>
+    );
+  }
+}
