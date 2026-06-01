@@ -2,8 +2,8 @@ import { SwissComponent } from '@kibologic/core';
 
 component PreviewPane {
   props = {
-    srcdoc: string;
-    error: string;
+    srcdoc: string,
+    error: string,
   };
 
   render() {

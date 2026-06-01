@@ -2,9 +2,9 @@ import { SwissComponent } from '@kibologic/core';
 
 component EditorPane {
   props = {
-    code: string;
-    onChange: (code: string) => void;
-    filename: string;
+    code: string,
+    onChange: Function,
+    filename: string,
   };
 
   render() {

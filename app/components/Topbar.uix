@@ -2,10 +2,10 @@ import { SwissComponent } from '@kibologic/core';
 
 component Topbar {
   props = {
-    selectedExample: string;
-    onExampleChange: (name: string) => void;
-    onShare: () => void;
-    shareUrl: string;
+    selectedExample: string,
+    onExampleChange: Function,
+    onShare: Function,
+    shareUrl: string,
   };
 
   _examples(): any[] {
