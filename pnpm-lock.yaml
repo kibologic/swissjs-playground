@@ -9,17 +9,17 @@ importers:
   .:
     dependencies:
       '@kibologic/compiler':
-        specifier: 0.1.3
-        version: 0.1.3
+        specifier: 0.1.4
+        version: 0.1.4
       '@kibologic/core':
-        specifier: 0.1.6
-        version: 0.1.6
+        specifier: 1.0.2
+        version: 1.0.2
       '@kibologic/plugin-file-router':
         specifier: 1.0.2
         version: 1.0.2(vite@5.4.21)
       '@kibologic/swite':
-        specifier: 0.2.31
-        version: 0.2.31
+        specifier: 0.2.32
+        version: 0.2.32
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -429,11 +429,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kibologic/compiler@0.1.3':
-    resolution: {integrity: sha512-6k0STFcFHmoF13Xlb621lbRtqhi99OxGIgFYEzCB95uLs/hdtZ1fFcn7IfUzl/gQeZsW6q3Nu9ABBi+y5R5ktQ==, tarball: https://npm.pkg.github.com/download/@kibologic/compiler/0.1.3/bdd48323d92aef827ad70ee4f83345d90b6333c8}
-
-  '@kibologic/core@0.1.6':
-    resolution: {integrity: sha512-OkkNESUjWHLI6NtIRWy5Fszz+B2I4su0fYiz3Wrj0kRYsI4UMgCR1Fa+JdBDxwqh1ZOnm+LG7/NJubdicPDL0A==, tarball: https://npm.pkg.github.com/download/@kibologic/core/0.1.6/8b23209d276369a230555cad8f73063819bfb3b0}
+  '@kibologic/compiler@0.1.4':
+    resolution: {integrity: sha512-ZtLxHuzB0+8VLEOlo2V7hwsUoOFd5XE0DJOVs/C8kHSsBRmKkf0uFT1bEekSN33w71QqIvB1vV0SR/V99/cWwA==, tarball: https://npm.pkg.github.com/download/@kibologic/compiler/0.1.4/1217af592314df56e45dd200ddc4469dfbea3f0f}
 
   '@kibologic/core@1.0.2':
     resolution: {integrity: sha512-63cPUIoOb2hvIexFA9P1ilqyMXE+9V8WNu09n22OTvLaIBUWYojCH6VfRLmNR1idYvP6l4bf2dOMQZS1m+NlJA==, tarball: https://npm.pkg.github.com/download/@kibologic/core/1.0.2/55ed9c09f8ad874a9e04a3e7941e54ecf6aa3fcb}
@@ -446,8 +443,8 @@ packages:
   '@kibologic/security@0.1.12':
     resolution: {integrity: sha512-alaIDTHHMhk84hHQ+VEt8gnIhMLrg+0YEGs31N2cY9cfiEkR+gQ6ByUPAp1tBJR6GkUW+J5enMEEn5mORZMp2w==, tarball: https://npm.pkg.github.com/download/@kibologic/security/0.1.12/edc94bb131777f6bf30d7874846350f9e91aae08}
 
-  '@kibologic/swite@0.2.31':
-    resolution: {integrity: sha512-5vNUlpH6PZqfahgfr5hovpbuRFwfnLb6MFagDTpOpKNxuBKSIgVRK9nlCox8QL10gLU0JNFttmLQ2gg3eBGF9A==, tarball: https://npm.pkg.github.com/download/@kibologic/swite/0.2.31/f6967069e8c9531a4fcf23ad8062d855a157feb5}
+  '@kibologic/swite@0.2.32':
+    resolution: {integrity: sha512-ZNteffXTJE8Ovq1FlMoFbDmenev9+t0vP7xvHCEWKUEmNwihCmpilak7MI8u0PBKZ8u0seMeUVYBhR5voKiVjw==, tarball: https://npm.pkg.github.com/download/@kibologic/swite/0.2.32/d225af9bdae3f17c944539dfec6403534caa27b2}
     hasBin: true
 
   '@kibologic/utils@0.1.14':
@@ -1402,7 +1399,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kibologic/compiler@0.1.3':
+  '@kibologic/compiler@0.1.4':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-transform-react-jsx': 7.29.7(@babel/core@7.29.7)
@@ -1413,8 +1410,6 @@ snapshots:
       typescript: 5.8.2
     transitivePeerDependencies:
       - supports-color
-
-  '@kibologic/core@0.1.6': {}
 
   '@kibologic/core@1.0.2':
     dependencies:
@@ -1428,9 +1423,9 @@ snapshots:
 
   '@kibologic/security@0.1.12': {}
 
-  '@kibologic/swite@0.2.31':
+  '@kibologic/swite@0.2.32':
     dependencies:
-      '@kibologic/compiler': link:../swiss-lib/packages/compiler
+      '@kibologic/compiler': 0.1.4
       '@kibologic/core': link:../swiss-lib/packages/core
       '@kibologic/plugin-file-router': link:../swiss-lib/packages/plugins/file-router
       chalk: 5.6.2
