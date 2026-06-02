@@ -49,8 +49,15 @@ server.app.use((req, res, next) => {
 
 server.app.use((req, res, next) => {
   if (req.method === 'GET' && req.headers.accept?.includes('text/html')) {
-    res.setHeader('Content-Type', 'text/html');
-    res.end(readFileSync(path.join(__dirname, 'app/public/index.html'), 'utf-8'));
+    const publicPath = path.join(__dirname, 'app/public', req.url.split('?')[0]);
+    try {
+      const html = readFileSync(publicPath, 'utf-8');
+      res.setHeader('Content-Type', 'text/html');
+      res.end(html);
+    } catch {
+      res.setHeader('Content-Type', 'text/html');
+      res.end(readFileSync(path.join(__dirname, 'app/public/index.html'), 'utf-8'));
+    }
     return;
   }
   next();

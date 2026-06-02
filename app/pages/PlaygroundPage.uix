@@ -7,14 +7,12 @@ let _debounceTimer: any = null;
 let _compileSeq: number = 0;
 
 component PlaygroundPage {
-  state {
-    let code: string = '';
-    let selectedExample: string = 'counter';
-    let shareUrl: string = '';
-    let compileError: string = '';
-    let srcdoc: string = '';
-    let compiling: boolean = false;
-  }
+  state { let code: string = ''; }
+  state { let selectedExample: string = 'counter'; }
+  state { let shareUrl: string = ''; }
+  state { let compileError: string = ''; }
+  state { let srcdoc: string = ''; }
+  state { let compiling: boolean = false; }
 
   _examples(): any {
     return {
@@ -44,11 +42,9 @@ component PlaygroundPage {
         "import { SwissComponent } from '@kibologic/core';",
         "",
         "comp" + "onent TodoApp {",
-        "  sta" + "te {",
-        "    let todos: any[] = [{ id: 1, text: 'Learn SwissJS', done: false }];",
-        "    let input: string = '';",
-        "    let nextId: number = 2;",
-        "  }",
+        "  sta" + "te { let todos: any[] = [{ id: 1, text: 'Learn SwissJS', done: false }]; }",
+        "  sta" + "te { let input: string = ''; }",
+        "  sta" + "te { let nextId: number = 2; }",
         "",
         "  _add() {",
         "    if (!this.input.trim()) return;",
@@ -88,7 +84,8 @@ component PlaygroundPage {
         "import { SwissComponent } from '@kibologic/core';",
         "",
         "comp" + "onent UserFetch {",
-        "  sta" + "te { let users: any[] = []; let loading: boolean = true; }",
+        "  sta" + "te { let users: any[] = []; }",
+        "  sta" + "te { let loading: boolean = true; }",
         "",
         "  async mounted() {",
         "    const res = await fetch('https://jsonplaceholder.typicode.com/users');",
@@ -116,7 +113,10 @@ component PlaygroundPage {
         "import { SwissComponent } from '@kibologic/core';",
         "",
         "comp" + "onent ContactForm {",
-        "  sta" + "te { let name: string = ''; let email: string = ''; let errors: any = {}; let sent: boolean = false; }",
+        "  sta" + "te { let name: string = ''; }",
+        "  sta" + "te { let email: string = ''; }",
+        "  sta" + "te { let errors: any = {}; }",
+        "  sta" + "te { let sent: boolean = false; }",
         "",
         "  _validate(): boolean {",
         "    const e: any = {};",
